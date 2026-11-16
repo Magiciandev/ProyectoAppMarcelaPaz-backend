@@ -26,6 +26,8 @@ services:
     depends_on:
       - ms-auth
       - ms-contenidos
+      - ms-actividades-evaluaciones
+      - ms-admin
 
   ms-auth:
     build: ./ms-auth
@@ -45,5 +47,29 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  # Se agregan en las fases siguientes:
-  #   ms-actividades-evaluaciones (9093), ms-progreso (9094), ms-admin (9095)
+  ms-actividades-evaluaciones:
+    build: ./ms-actividades-evaluaciones
+    ports:
+      - "9093:9093"
+    environment:
+      <<: [*common-env, *db-env]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ms-admin valida el ciclo de estados y llama DIRECTAMENTE (sin pasar por el gateway)
+  # a ms-contenidos y ms-actividades-evaluaciones, reenviando el token del usuario UTP.
+  ms-admin:
+    build: ./ms-admin
+    ports:
+      - "9095:9095"
+    environment:
+      <<: [*common-env, *db-env]
+      CONTENIDOS_URL: http://ms-contenidos:9092
+      EVALUACIONES_URL: http://ms-actividades-evaluaciones:9093
+    depends_on:
+      - ms-contenidos
+      - ms-actividades-evaluaciones
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Se agrega en la fase 4:  ms-progreso (9094)

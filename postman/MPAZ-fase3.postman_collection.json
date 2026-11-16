@@ -1,0 +1,2767 @@
+{
+  "info": {
+    "name": "MPAZ PRO 2.º - Fase 3 (ms-actividades-evaluaciones y ms-admin)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Se puede ejecutar varias veces: crea su propia unidad y objetivos cada vez. Requiere los datos de prueba de ms-auth y ms-contenidos."
+  },
+  "variable": [
+    {
+      "key": "tokenUtp",
+      "value": ""
+    },
+    {
+      "key": "tokenDocente",
+      "value": ""
+    },
+    {
+      "key": "tokenEstudiante",
+      "value": ""
+    },
+    {
+      "key": "unidadId",
+      "value": ""
+    },
+    {
+      "key": "objetivoId",
+      "value": ""
+    },
+    {
+      "key": "objetivoVacioId",
+      "value": ""
+    },
+    {
+      "key": "preguntaSelId",
+      "value": ""
+    },
+    {
+      "key": "preguntaSecId",
+      "value": ""
+    },
+    {
+      "key": "preguntaAsoId",
+      "value": ""
+    },
+    {
+      "key": "actividadId",
+      "value": ""
+    },
+    {
+      "key": "pruebaId",
+      "value": ""
+    },
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:9090"
+    }
+  ],
+  "item": [
+    {
+      "name": "A. Preparación",
+      "item": [
+        {
+          "name": "Login UTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"utp\",\n  \"pin\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenUtp', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Docente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"docente\",\n  \"pin\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenDocente', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Estudiante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"ana\",\n  \"pin\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenEstudiante', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear unidad de prueba (Ciencias)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contenidos/unidades",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos",
+                "unidades"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asignaturaId\": 3,\n  \"titulo\": \"Unidad de prueba fase 3\",\n  \"orden\": 9\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('unidadId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear objetivo F3-OA01",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contenidos/unidades/{{unidadId}}/objetivos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos",
+                "unidades",
+                "{{unidadId}}",
+                "objetivos"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"F3-OA01\",\n  \"descripcion\": \"Objetivo para probar el flujo completo.\",\n  \"ejeCurricular\": \"Pruebas\",\n  \"orden\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('objetivoId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agregar contenido al objetivo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contenidos/objetivos/{{objetivoId}}/contenidos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos",
+                "objetivos",
+                "{{objetivoId}}",
+                "contenidos"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Contenido de prueba\",\n  \"explicacion\": \"Texto breve de prueba.\",\n  \"responsableOrigen\": \"Equipo MPAZ PRO (material propio)\",\n  \"licencia\": \"Propio\",\n  \"orden\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear un segundo objetivo vacío (sin contenido)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contenidos/unidades/{{unidadId}}/objetivos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos",
+                "unidades",
+                "{{unidadId}}",
+                "objetivos"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"F3-OA02\",\n  \"descripcion\": \"Objetivo sin contenido ni prueba.\",\n  \"orden\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('objetivoVacioId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "B. Banco de preguntas y validación por tipo",
+      "item": [
+        {
+          "name": "Pregunta de selección válida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": {{objetivoId}}, \"tipo\": \"SELECCION\", \"enunciado\": \"¿Cuál es un animal?\", \"explicacion\": \"El perro es un animal.\",\n  \"opciones\": [ { \"texto\": \"perro\", \"esCorrecta\": true }, { \"texto\": \"mesa\", \"esCorrecta\": false }, { \"texto\": \"lápiz\", \"esCorrecta\": false } ] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('preguntaSelId', pm.response.json().id);",
+                  "pm.test('opciones con esCorrecta', () => pm.expect(pm.response.json().opciones[0]).to.have.property('esCorrecta'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Selección sin respuesta correcta (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": {{objetivoId}}, \"tipo\": \"SELECCION\", \"enunciado\": \"Sin correcta\",\n  \"opciones\": [ { \"texto\": \"a\", \"esCorrecta\": false }, { \"texto\": \"b\", \"esCorrecta\": false } ] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pregunta de secuencia válida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": {{objetivoId}}, \"tipo\": \"SECUENCIA\", \"enunciado\": \"Ordena: sol-a-ri-o\",\n  \"opciones\": [ { \"texto\": \"ri\", \"posicionCorrecta\": 3 }, { \"texto\": \"sol\", \"posicionCorrecta\": 1 }, { \"texto\": \"a\", \"posicionCorrecta\": 2 } ] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('preguntaSecId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Secuencia con salto en las posiciones (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": {{objetivoId}}, \"tipo\": \"SECUENCIA\", \"enunciado\": \"Con salto\",\n  \"opciones\": [ { \"texto\": \"a\", \"posicionCorrecta\": 1 }, { \"texto\": \"b\", \"posicionCorrecta\": 3 } ] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pregunta de asociación válida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": {{objetivoId}}, \"tipo\": \"ASOCIACION\", \"enunciado\": \"Une cada palabra con su pista\",\n  \"opciones\": [ { \"texto\": \"gato\", \"parClave\": \"A\" }, { \"texto\": \"dice miau\", \"parClave\": \"A\" }, { \"texto\": \"sol\", \"parClave\": \"B\" }, { \"texto\": \"brilla de día\", \"parClave\": \"B\" } ] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('preguntaAsoId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Asociación con cantidad impar (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": {{objetivoId}}, \"tipo\": \"ASOCIACION\", \"enunciado\": \"Impar\",\n  \"opciones\": [ { \"texto\": \"a\", \"parClave\": \"A\" }, { \"texto\": \"b\", \"parClave\": \"A\" }, { \"texto\": \"c\", \"parClave\": \"B\" } ] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tipo de pregunta inexistente (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": {{objetivoId}}, \"tipo\": \"DIBUJO\", \"enunciado\": \"x\", \"opciones\": [ { \"texto\": \"a\", \"esCorrecta\": true }, { \"texto\": \"b\", \"esCorrecta\": false } ] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Banco de preguntas del objetivo (UTP)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/preguntas?objetivoId={{objetivoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "preguntas"
+              ],
+              "query": [
+                {
+                  "key": "objetivoId",
+                  "value": "{{objetivoId}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('hay 3 preguntas', () => pm.expect(pm.response.json()).to.have.lengthOf(3));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El docente no ve el banco de preguntas (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/preguntas?objetivoId={{objetivoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "preguntas"
+              ],
+              "query": [
+                {
+                  "key": "objetivoId",
+                  "value": "{{objetivoId}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El estudiante no ve el banco de preguntas (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/preguntas?objetivoId={{objetivoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "preguntas"
+              ],
+              "query": [
+                {
+                  "key": "objetivoId",
+                  "value": "{{objetivoId}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El estudiante no puede crear preguntas (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": {{objetivoId}}, \"tipo\": \"SELECCION\", \"enunciado\": \"x\", \"opciones\": [ { \"texto\": \"a\", \"esCorrecta\": true }, { \"texto\": \"b\", \"esCorrecta\": false } ] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "C. Actividades, prueba final y paquete",
+      "item": [
+        {
+          "name": "Crear actividad de selección",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/actividades",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "actividades"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"objetivoId\": {{objetivoId}},\n  \"titulo\": \"Elige el animal\",\n  \"tipo\": \"SELECCION\",\n  \"dificultad\": 1,\n  \"orden\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('actividadId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Asignar la pregunta de selección a la actividad",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/actividades/{{actividadId}}/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "actividades",
+                "{{actividadId}}",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[ { \"preguntaId\": {{preguntaSelId}}, \"orden\": 1 } ]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Una pregunta de otro tipo no entra en la actividad (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/actividades/{{actividadId}}/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "actividades",
+                "{{actividadId}}",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[ { \"preguntaId\": {{preguntaSecId}}, \"orden\": 1 } ]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Preguntas repetidas en la actividad (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/actividades/{{actividadId}}/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "actividades",
+                "{{actividadId}}",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[ { \"preguntaId\": {{preguntaSelId}} }, { \"preguntaId\": {{preguntaSelId}} } ]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear la prueba final",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/pruebas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "pruebas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"objetivoId\": {{objetivoId}},\n  \"titulo\": \"Prueba final F3\",\n  \"criteriosPuntuacion\": \"Cada pregunta vale su puntaje.\",\n  \"limiteIntentos\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('pruebaId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Segunda prueba para el mismo objetivo (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/pruebas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "pruebas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"objetivoId\": {{objetivoId}},\n  \"titulo\": \"Duplicada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Puntaje cero no es válido (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/pruebas/{{pruebaId}}/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "pruebas",
+                "{{pruebaId}}",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[ { \"preguntaId\": {{preguntaSelId}}, \"puntaje\": 0 } ]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Armar la prueba con los tres tipos de pregunta",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/pruebas/{{pruebaId}}/preguntas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "pruebas",
+                "{{pruebaId}}",
+                "preguntas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[ { \"preguntaId\": {{preguntaSelId}}, \"ordenEnPrueba\": 1, \"puntaje\": 2 },\n  { \"preguntaId\": {{preguntaSecId}}, \"ordenEnPrueba\": 2, \"puntaje\": 1 },\n  { \"preguntaId\": {{preguntaAsoId}}, \"ordenEnPrueba\": 3, \"puntaje\": 1 } ]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('3 preguntas', () => pm.expect(pm.response.json()).to.have.lengthOf(3));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Paquete como UTP (ve el borrador completo)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/objetivos/{{objetivoId}}/paquete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "objetivos",
+                "{{objetivoId}}",
+                "paquete"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('1 actividad', () => pm.expect(j.actividades).to.have.lengthOf(1));",
+                  "pm.test('3 preguntas', () => pm.expect(j.preguntas).to.have.lengthOf(3));",
+                  "pm.test('prueba con 3 preguntas', () => pm.expect(j.prueba.preguntas).to.have.lengthOf(3));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Paquete como Estudiante (todavía no hay nada visible)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/objetivos/{{objetivoId}}/paquete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "objetivos",
+                "{{objetivoId}}",
+                "paquete"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('sin actividades', () => pm.expect(j.actividades).to.have.lengthOf(0));",
+                  "pm.test('sin prueba', () => pm.expect(j.prueba).to.eql(null));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "D. Aprobación y visibilidad (ms-admin)",
+      "item": [
+        {
+          "name": "El estudiante no puede aprobar (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": {{objetivoId}}, \"accion\": \"ENVIAR_REVISION\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El docente no puede aprobar (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": {{objetivoId}}, \"accion\": \"ENVIAR_REVISION\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sin contenido no se envía a revisión (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": {{objetivoVacioId}}, \"accion\": \"ENVIAR_REVISION\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "No se publica un borrador (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": {{objetivoId}}, \"accion\": \"PUBLICAR\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Acción inexistente (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": {{objetivoId}}, \"accion\": \"VOLAR\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Objetivo inexistente (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": 999999, \"accion\": \"ENVIAR_REVISION\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Enviar a revisión",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": {{objetivoId}}, \"accion\": \"ENVIAR_REVISION\", \"observacion\": \"Listo para revisar\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('estado nuevo EN_REVISION', () => pm.expect(pm.response.json().estadoNuevo).to.eql('EN_REVISION'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "En revisión ya no se edita el objetivo (409)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contenidos/objetivos/{{objetivoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos",
+                "objetivos",
+                "{{objetivoId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"F3-OA01\",\n  \"descripcion\": \"Cambio no permitido\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "En revisión ya no se edita la pregunta (409)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/preguntas/{{preguntaSelId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "preguntas",
+                "{{preguntaSelId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": {{objetivoId}}, \"tipo\": \"SELECCION\", \"enunciado\": \"Cambio no permitido\", \"opciones\": [ { \"texto\": \"a\", \"esCorrecta\": true }, { \"texto\": \"b\", \"esCorrecta\": false } ] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El docente aún no ve el objetivo en revisión (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contenidos/objetivos/{{objetivoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos",
+                "objetivos",
+                "{{objetivoId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rechazar (vuelve a borrador)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": {{objetivoId}}, \"accion\": \"RECHAZAR\", \"observacion\": \"Falta revisar el texto\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('estado nuevo BORRADOR', () => pm.expect(pm.response.json().estadoNuevo).to.eql('BORRADOR'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Enviar a revisión otra vez",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": {{objetivoId}}, \"accion\": \"ENVIAR_REVISION\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('estado nuevo EN_REVISION', () => pm.expect(pm.response.json().estadoNuevo).to.eql('EN_REVISION'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Autorizar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": {{objetivoId}}, \"accion\": \"AUTORIZAR\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('estado nuevo AUTORIZADO', () => pm.expect(pm.response.json().estadoNuevo).to.eql('AUTORIZADO'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El docente ya ve el objetivo autorizado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contenidos/objetivos/{{objetivoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos",
+                "objetivos",
+                "{{objetivoId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El estudiante aún no lo ve (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contenidos/objetivos/{{objetivoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos",
+                "objetivos",
+                "{{objetivoId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El docente ve la prueba autorizada en el paquete",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/objetivos/{{objetivoId}}/paquete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "objetivos",
+                "{{objetivoId}}",
+                "paquete"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('prueba visible', () => pm.expect(pm.response.json().prueba).to.not.eql(null));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Publicar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": {{objetivoId}}, \"accion\": \"PUBLICAR\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('estado nuevo PUBLICADO', () => pm.expect(pm.response.json().estadoNuevo).to.eql('PUBLICADO'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El estudiante ya ve el objetivo publicado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contenidos/objetivos/{{objetivoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos",
+                "objetivos",
+                "{{objetivoId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El estudiante recibe el paquete de evaluación con solucionario",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/objetivos/{{objetivoId}}/paquete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "objetivos",
+                "{{objetivoId}}",
+                "paquete"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('1 actividad y 3 preguntas', () => { pm.expect(j.actividades).to.have.lengthOf(1); pm.expect(j.preguntas).to.have.lengthOf(3); });",
+                  "pm.test('la prueba trae sus 3 preguntas con puntaje', () => { pm.expect(j.prueba.preguntas).to.have.lengthOf(3); pm.expect(j.prueba.estado).to.eql('PUBLICADO'); });",
+                  "const sel = j.preguntas.find(p => p.tipo === 'SELECCION');",
+                  "pm.test('la selección trae esCorrecta', () => pm.expect(sel.opciones.some(o => o.esCorrecta === true)).to.eql(true));",
+                  "const sec = j.preguntas.find(p => p.tipo === 'SECUENCIA');",
+                  "pm.test('la secuencia trae posicionCorrecta', () => pm.expect(sec.opciones[0]).to.have.property('posicionCorrecta'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "La unidad quedó PUBLICADA (estado derivado)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contenidos/unidades?asignaturaId=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos",
+                "unidades"
+              ],
+              "query": [
+                {
+                  "key": "asignaturaId",
+                  "value": "3"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const u = pm.response.json().find(x => String(x.id) === String(pm.collectionVariables.get('unidadId')));",
+                  "pm.test('estado derivado PUBLICADO', () => pm.expect(u.estado).to.eql('PUBLICADO'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Historial de aprobaciones del objetivo (UTP)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/historial?entidadId={{objetivoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "historial"
+              ],
+              "query": [
+                {
+                  "key": "entidadId",
+                  "value": "{{objetivoId}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const h = pm.response.json();",
+                  "pm.test('5 movimientos', () => pm.expect(h).to.have.lengthOf(5));",
+                  "pm.test('el más reciente es PUBLICAR', () => pm.expect(h[0].accion).to.eql('PUBLICAR'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El docente no ve el historial (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/historial?entidadId={{objetivoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "historial"
+              ],
+              "query": [
+                {
+                  "key": "entidadId",
+                  "value": "{{objetivoId}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Deshabilitar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": {{objetivoId}}, \"accion\": \"DESHABILITAR\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('estado nuevo DESHABILITADO', () => pm.expect(pm.response.json().estadoNuevo).to.eql('DESHABILITADO'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El estudiante deja de ver el objetivo deshabilitado (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contenidos/objetivos/{{objetivoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos",
+                "objetivos",
+                "{{objetivoId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reabrir (vuelve a borrador)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/aprobaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "aprobaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"entidad\": \"OBJETIVO\", \"entidadId\": {{objetivoId}}, \"accion\": \"REABRIR\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 200', () => pm.response.to.have.status(200));",
+                  "pm.test('estado nuevo BORRADOR', () => pm.expect(pm.response.json().estadoNuevo).to.eql('BORRADOR'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "La ruta interna de evaluaciones no se expone por el gateway",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/evaluaciones/interno/objetivos/{{objetivoId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "evaluaciones",
+                "interno",
+                "objetivos",
+                "{{objetivoId}}",
+                "estado"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"PUBLICADO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
