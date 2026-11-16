@@ -1,0 +1,2387 @@
+{
+  "info": {
+    "name": "MPAZ PRO 2.º - Fase 4 (ms-progreso)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Se puede ejecutar varias veces: empieza reiniciando el objetivo 3 de Ana. Requiere los datos de prueba de ms-auth, ms-contenidos, ms-actividades-evaluaciones y ms-progreso, y que Ana no tenga intentos nuevos en el objetivo 1."
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const pad = n => String(n).padStart(2, '0');",
+          "const f = dt => dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());",
+          "pm.collectionVariables.set('fechaAyer', f(new Date(Date.now() - 86400000)));",
+          "pm.collectionVariables.set('fechaEn30', f(new Date(Date.now() + 30 * 86400000)));"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "tokenUtp",
+      "value": ""
+    },
+    {
+      "key": "tokenDocente",
+      "value": ""
+    },
+    {
+      "key": "tokenEstudiante",
+      "value": ""
+    },
+    {
+      "key": "cursoAId",
+      "value": ""
+    },
+    {
+      "key": "cursoBId",
+      "value": ""
+    },
+    {
+      "key": "asignacionOA4Id",
+      "value": ""
+    },
+    {
+      "key": "informeId",
+      "value": ""
+    },
+    {
+      "key": "fechaAyer",
+      "value": ""
+    },
+    {
+      "key": "fechaEn30",
+      "value": ""
+    },
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:9090"
+    }
+  ],
+  "item": [
+    {
+      "name": "A. Preparación",
+      "item": [
+        {
+          "name": "Login UTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"utp\",\n  \"pin\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenUtp', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Docente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"docente\",\n  \"pin\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenDocente', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Estudiante (Ana)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"ana\",\n  \"pin\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenEstudiante', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "B. Cursos y estudiantes",
+      "item": [
+        {
+          "name": "El docente ve sus dos cursos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "cursos"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('2 cursos', () => pm.expect(j).to.have.lengthOf(2));",
+                  "pm.collectionVariables.set('cursoAId', j.find(c => c.nombre === '2° A').id);",
+                  "pm.collectionVariables.set('cursoBId', j.find(c => c.nombre === '2° B').id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "UTP ve todos los cursos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "cursos"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('2 cursos', () => pm.expect(pm.response.json()).to.have.lengthOf(2));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El estudiante no ve cursos (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/cursos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "cursos"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estudiantes del 2° A con sus fechas de conexión",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/cursos/{{cursoAId}}/estudiantes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "cursos",
+                "{{cursoAId}}",
+                "estudiantes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('4 estudiantes', () => pm.expect(j).to.have.lengthOf(4));",
+                  "const beto = j.find(e => e.nombre === 'Beto');",
+                  "pm.test('Beto tiene última conexión y sincronización', () => { pm.expect(beto.ultimaConexion).to.be.a('string'); pm.expect(beto.ultimaSincronizacion).to.be.a('string'); });",
+                  "const carla = j.find(e => e.nombre === 'Carla');",
+                  "pm.test('Carla nunca se ha conectado', () => pm.expect(carla.ultimaConexion).to.eql(null));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estudiantes del 2° B",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/cursos/{{cursoBId}}/estudiantes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "cursos",
+                "{{cursoBId}}",
+                "estudiantes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('4 estudiantes', () => pm.expect(pm.response.json()).to.have.lengthOf(4));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Curso inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/cursos/999999/estudiantes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "cursos",
+                "999999",
+                "estudiantes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "C. Asignaciones",
+      "item": [
+        {
+          "name": "Asignar el objetivo 4 (autorizado) al 2° A",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/asignaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "asignaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": 4, \"cursoId\": {{cursoAId}}, \"fechaDesde\": \"{{fechaAyer}}\", \"fechaHasta\": \"{{fechaEn30}}\", \"limiteIntentos\": 3 }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 creada o 409 si ya existía', () => pm.expect(pm.response.code).to.be.oneOf([201, 409]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "No se asigna un objetivo que el docente aún no ve (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/asignaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "asignaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": 5, \"cursoId\": {{cursoAId}}, \"fechaDesde\": \"{{fechaAyer}}\", \"fechaHasta\": \"{{fechaEn30}}\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Curso y estudiante a la vez (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/asignaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "asignaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": 4, \"cursoId\": {{cursoAId}}, \"estudianteId\": 3, \"fechaDesde\": \"{{fechaAyer}}\", \"fechaHasta\": \"{{fechaEn30}}\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Fechas invertidas (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/asignaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "asignaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": 4, \"cursoId\": {{cursoAId}}, \"fechaDesde\": \"{{fechaEn30}}\", \"fechaHasta\": \"{{fechaAyer}}\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Límite de intentos menor que 1 (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/asignaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "asignaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": 4, \"cursoId\": {{cursoAId}}, \"fechaDesde\": \"{{fechaAyer}}\", \"fechaHasta\": \"{{fechaEn30}}\", \"limiteIntentos\": 0 }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El estudiante no puede asignar (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/asignaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "asignaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": 4, \"cursoId\": {{cursoAId}}, \"fechaDesde\": \"{{fechaAyer}}\", \"fechaHasta\": \"{{fechaEn30}}\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "UTP no puede asignar (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/asignaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "asignaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": 4, \"cursoId\": {{cursoAId}}, \"fechaDesde\": \"{{fechaAyer}}\", \"fechaHasta\": \"{{fechaEn30}}\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Asignaciones del 2° A",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/asignaciones?cursoId={{cursoAId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "asignaciones"
+              ],
+              "query": [
+                {
+                  "key": "cursoId",
+                  "value": "{{cursoAId}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('están los objetivos 1, 3 y 4', () => { [1,3,4].forEach(o => pm.expect(j.some(a => a.objetivoId === o)).to.eql(true)); });",
+                  "pm.collectionVariables.set('asignacionOA4Id', j.find(a => a.objetivoId === 4).id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cambiar el límite de intentos de la asignación del objetivo 4",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/asignaciones/{{asignacionOA4Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "asignaciones",
+                "{{asignacionOA4Id}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"objetivoId\": 4, \"cursoId\": {{cursoAId}}, \"fechaDesde\": \"{{fechaAyer}}\", \"fechaHasta\": \"{{fechaEn30}}\", \"limiteIntentos\": 5 }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('límite 5', () => pm.expect(pm.response.json().limiteIntentos).to.eql(5));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "D. Lo propio del estudiante",
+      "item": [
+        {
+          "name": "Ana: sus datos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/estudiantes/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "estudiantes",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('es Ana del 2° A', () => { pm.expect(j.nombre).to.eql('Ana'); pm.expect(j.cursoNombre).to.eql('2° A'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ana: sus asignaciones vigentes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/estudiantes/me/asignaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "estudiantes",
+                "me",
+                "asignaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('tiene los objetivos 1 y 3', () => { [1,3].forEach(o => pm.expect(j.some(a => a.objetivoId === o)).to.eql(true)); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ana: su avance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/estudiantes/me/avance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "estudiantes",
+                "me",
+                "avance"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const oa1 = j.objetivos.find(o => o.objetivoId === 1);",
+                  "pm.test('objetivo 1 completo', () => pm.expect(oa1.porcentajeAvance).to.eql(100));",
+                  "pm.test('no trae nivel ni informes', () => pm.expect(oa1).to.not.have.property('nivel'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ana registra su conexión",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/conexion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "conexion"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El docente no usa las rutas del estudiante (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/estudiantes/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "estudiantes",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El docente no sincroniza (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/sync",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "sync"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"intentos\": [], \"progreso\": [] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "E. Sincronización",
+      "item": [
+        {
+          "name": "El docente reinicia a Ana en el objetivo 3 (parte limpia)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/estudiantes/3/reinicio",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "estudiantes",
+                "3",
+                "reinicio"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"objetivoId\": 3,\n  \"motivo\": \"Preparar la prueba de sincronización\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('devuelve la fecha del reinicio', () => pm.expect(pm.response.json().fecha).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ana sincroniza cuatro intentos, uno sin asignación, uno fuera de fecha y uno anterior al reinicio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/sync",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "sync"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"enviadoEn\": \"{{t1}}\",\n  \"intentos\": [\n    { \"uuid\": \"{{uuid_u1}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 1, \"puntajeObtenido\": 2, \"puntajeMaximo\": 4, \"fechaHora\": \"{{t1}}\", \"respuestas\": [ { \"uuid\": \"{{uuid_r1}}\", \"preguntaId\": 5, \"respuesta\": \"{\\\"opcionId\\\":1}\", \"esCorrecta\": true, \"puntajeObtenido\": 1, \"marcaTiempo\": \"{{t1}}\" } ] },\n    { \"uuid\": \"{{uuid_u2}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 2, \"puntajeObtenido\": 3, \"puntajeMaximo\": 4, \"fechaHora\": \"{{t2}}\", \"respuestas\": [ { \"uuid\": \"{{uuid_r2}}\", \"preguntaId\": 5, \"respuesta\": \"{\\\"opcionId\\\":1}\", \"esCorrecta\": true, \"puntajeObtenido\": 1, \"marcaTiempo\": \"{{t2}}\" } ] },\n    { \"uuid\": \"{{uuid_u3}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 3, \"puntajeObtenido\": 4, \"puntajeMaximo\": 4, \"fechaHora\": \"{{t3}}\", \"respuestas\": [ { \"uuid\": \"{{uuid_r3}}\", \"preguntaId\": 5, \"respuesta\": \"{\\\"opcionId\\\":1}\", \"esCorrecta\": true, \"puntajeObtenido\": 1, \"marcaTiempo\": \"{{t3}}\" } ] },\n    { \"uuid\": \"{{uuid_u4}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 4, \"puntajeObtenido\": 4, \"puntajeMaximo\": 4, \"fechaHora\": \"{{t4}}\", \"respuestas\": [ { \"uuid\": \"{{uuid_r4}}\", \"preguntaId\": 5, \"respuesta\": \"{\\\"opcionId\\\":1}\", \"esCorrecta\": true, \"puntajeObtenido\": 1, \"marcaTiempo\": \"{{t4}}\" } ] },\n    { \"uuid\": \"{{uuid_u5}}\", \"pruebaId\": 4, \"objetivoId\": 5, \"numeroIntento\": 1, \"puntajeObtenido\": 2, \"puntajeMaximo\": 4, \"fechaHora\": \"{{t1}}\", \"respuestas\": [] },\n    { \"uuid\": \"{{uuid_u6}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 1, \"puntajeObtenido\": 2, \"puntajeMaximo\": 4, \"fechaHora\": \"2020-01-15T12:00:00Z\", \"respuestas\": [] },\n    { \"uuid\": \"{{uuid_u7}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 1, \"puntajeObtenido\": 2, \"puntajeMaximo\": 4, \"fechaHora\": \"{{tPasada}}\", \"respuestas\": [] }\n  ],\n  \"progreso\": [\n    { \"objetivoId\": 3, \"contenidosCompletados\": 2, \"actividadesCompletadas\": 1, \"desafiosCompletados\": 0, \"porcentajeAvance\": 80, \"marcaTiempo\": \"{{t1}}\" },\n    { \"objetivoId\": 5, \"contenidosCompletados\": 1, \"actividadesCompletadas\": 0, \"desafiosCompletados\": 0, \"porcentajeAvance\": 20, \"marcaTiempo\": \"{{t1}}\" }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const g = () => pm.variables.replaceIn('{{$guid}}');",
+                  "['u1','u2','u3','u4','u5','u6','u7','r1','r2','r3','r4'].forEach(k => pm.collectionVariables.set('uuid_' + k, g()));",
+                  "const base = Date.now() + 120000;",
+                  "[1,2,3,4].forEach(i => pm.collectionVariables.set('t' + i, new Date(base + i * 1000).toISOString()));",
+                  "pm.collectionVariables.set('tPasada', new Date(Date.now() - 3600000).toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "const por = {}; r.intentos.forEach(i => por[i.uuid] = i);",
+                  "const u = k => por[pm.collectionVariables.get('uuid_' + k)];",
+                  "pm.test('los tres primeros intentos: ACEPTADO', () => { ['u1','u2','u3'].forEach(k => pm.expect(u(k).resultado).to.eql('ACEPTADO')); });",
+                  "pm.test('el cuarto supera el límite de 3', () => { pm.expect(u('u4').resultado).to.eql('RECHAZADO'); pm.expect(u('u4').motivo).to.eql('LIMITE_INTENTOS'); });",
+                  "pm.test('sin asignación', () => pm.expect(u('u5').motivo).to.eql('SIN_ASIGNACION'));",
+                  "pm.test('fuera de fecha', () => pm.expect(u('u6').motivo).to.eql('FUERA_DE_FECHA'));",
+                  "pm.test('anterior al reinicio', () => pm.expect(u('u7').motivo).to.eql('ANTERIOR_AL_REINICIO'));",
+                  "const pr3 = r.progreso.find(p => p.objetivoId === 3), pr5 = r.progreso.find(p => p.objetivoId === 5);",
+                  "pm.test('progreso del objetivo 3: ACEPTADO', () => pm.expect(pr3.resultado).to.eql('ACEPTADO'));",
+                  "pm.test('progreso del objetivo 5 sin asignación', () => pm.expect(pr5.motivo).to.eql('SIN_ASIGNACION'));",
+                  "const m3 = r.mejorPorObjetivo.find(m => m.objetivoId === 3);",
+                  "pm.test('mejor resultado 100 %, 3 intentos aceptados, límite 3', () => { pm.expect(m3.mejorPorcentaje).to.eql(100); pm.expect(m3.intentosAceptados).to.eql(3); pm.expect(m3.limiteIntentos).to.eql(3); });",
+                  "pm.test('informa el último reinicio', () => pm.expect(r.ultimoReinicio).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reenviar el mismo lote no duplica nada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/sync",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "sync"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"enviadoEn\": \"{{t1}}\",\n  \"intentos\": [\n    { \"uuid\": \"{{uuid_u1}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 1, \"puntajeObtenido\": 2, \"puntajeMaximo\": 4, \"fechaHora\": \"{{t1}}\", \"respuestas\": [ { \"uuid\": \"{{uuid_r1}}\", \"preguntaId\": 5, \"respuesta\": \"{\\\"opcionId\\\":1}\", \"esCorrecta\": true, \"puntajeObtenido\": 1, \"marcaTiempo\": \"{{t1}}\" } ] },\n    { \"uuid\": \"{{uuid_u2}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 2, \"puntajeObtenido\": 3, \"puntajeMaximo\": 4, \"fechaHora\": \"{{t2}}\", \"respuestas\": [ { \"uuid\": \"{{uuid_r2}}\", \"preguntaId\": 5, \"respuesta\": \"{\\\"opcionId\\\":1}\", \"esCorrecta\": true, \"puntajeObtenido\": 1, \"marcaTiempo\": \"{{t2}}\" } ] },\n    { \"uuid\": \"{{uuid_u3}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 3, \"puntajeObtenido\": 4, \"puntajeMaximo\": 4, \"fechaHora\": \"{{t3}}\", \"respuestas\": [ { \"uuid\": \"{{uuid_r3}}\", \"preguntaId\": 5, \"respuesta\": \"{\\\"opcionId\\\":1}\", \"esCorrecta\": true, \"puntajeObtenido\": 1, \"marcaTiempo\": \"{{t3}}\" } ] },\n    { \"uuid\": \"{{uuid_u4}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 4, \"puntajeObtenido\": 4, \"puntajeMaximo\": 4, \"fechaHora\": \"{{t4}}\", \"respuestas\": [ { \"uuid\": \"{{uuid_r4}}\", \"preguntaId\": 5, \"respuesta\": \"{\\\"opcionId\\\":1}\", \"esCorrecta\": true, \"puntajeObtenido\": 1, \"marcaTiempo\": \"{{t4}}\" } ] },\n    { \"uuid\": \"{{uuid_u5}}\", \"pruebaId\": 4, \"objetivoId\": 5, \"numeroIntento\": 1, \"puntajeObtenido\": 2, \"puntajeMaximo\": 4, \"fechaHora\": \"{{t1}}\", \"respuestas\": [] },\n    { \"uuid\": \"{{uuid_u6}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 1, \"puntajeObtenido\": 2, \"puntajeMaximo\": 4, \"fechaHora\": \"2020-01-15T12:00:00Z\", \"respuestas\": [] },\n    { \"uuid\": \"{{uuid_u7}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 1, \"puntajeObtenido\": 2, \"puntajeMaximo\": 4, \"fechaHora\": \"{{tPasada}}\", \"respuestas\": [] }\n  ],\n  \"progreso\": [\n    { \"objetivoId\": 3, \"contenidosCompletados\": 2, \"actividadesCompletadas\": 1, \"desafiosCompletados\": 0, \"porcentajeAvance\": 80, \"marcaTiempo\": \"{{t1}}\" },\n    { \"objetivoId\": 5, \"contenidosCompletados\": 1, \"actividadesCompletadas\": 0, \"desafiosCompletados\": 0, \"porcentajeAvance\": 20, \"marcaTiempo\": \"{{t1}}\" }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "const por = {}; r.intentos.forEach(i => por[i.uuid] = i);",
+                  "const u = k => por[pm.collectionVariables.get('uuid_' + k)];",
+                  "pm.test('los tres primeros intentos: DUPLICADO', () => { ['u1','u2','u3'].forEach(k => pm.expect(u(k).resultado).to.eql('DUPLICADO')); });",
+                  "pm.test('el cuarto supera el límite de 3', () => { pm.expect(u('u4').resultado).to.eql('RECHAZADO'); pm.expect(u('u4').motivo).to.eql('LIMITE_INTENTOS'); });",
+                  "pm.test('sin asignación', () => pm.expect(u('u5').motivo).to.eql('SIN_ASIGNACION'));",
+                  "pm.test('fuera de fecha', () => pm.expect(u('u6').motivo).to.eql('FUERA_DE_FECHA'));",
+                  "pm.test('anterior al reinicio', () => pm.expect(u('u7').motivo).to.eql('ANTERIOR_AL_REINICIO'));",
+                  "const pr3 = r.progreso.find(p => p.objetivoId === 3), pr5 = r.progreso.find(p => p.objetivoId === 5);",
+                  "pm.test('progreso del objetivo 3: DUPLICADO', () => pm.expect(pr3.resultado).to.eql('DUPLICADO'));",
+                  "pm.test('progreso del objetivo 5 sin asignación', () => pm.expect(pr5.motivo).to.eql('SIN_ASIGNACION'));",
+                  "const m3 = r.mejorPorObjetivo.find(m => m.objetivoId === 3);",
+                  "pm.test('mejor resultado 100 %, 3 intentos aceptados, límite 3', () => { pm.expect(m3.mejorPorcentaje).to.eql(100); pm.expect(m3.intentosAceptados).to.eql(3); pm.expect(m3.limiteIntentos).to.eql(3); });",
+                  "pm.test('informa el último reinicio', () => pm.expect(r.ultimoReinicio).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Un puntaje mayor al máximo es dato inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/sync",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "sync"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"intentos\": [ { \"uuid\": \"{{$guid}}\", \"pruebaId\": 2, \"objetivoId\": 3, \"numeroIntento\": 1, \"puntajeObtenido\": 9, \"puntajeMaximo\": 4, \"fechaHora\": \"{{t1}}\", \"respuestas\": [] } ], \"progreso\": [] }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('DATOS_INVALIDOS', () => pm.expect(pm.response.json().intentos[0].motivo).to.eql('DATOS_INVALIDOS'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ana: su avance después de sincronizar",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/estudiantes/me/avance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "estudiantes",
+                "me",
+                "avance"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const oa3 = j.objetivos.find(o => o.objetivoId === 3);",
+                  "pm.test('3 intentos usados y ninguno restante', () => { pm.expect(oa3.intentosUsados).to.eql(3); pm.expect(oa3.intentosRestantes).to.eql(0); });",
+                  "pm.test('avance 80 %', () => pm.expect(oa3.porcentajeAvance).to.eql(80));",
+                  "pm.test('trae la fecha del último reinicio', () => pm.expect(j.ultimoReinicio).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ana: sus asignaciones con los intentos usados",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/estudiantes/me/asignaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "estudiantes",
+                "me",
+                "asignaciones"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('objetivo 3 con 3 intentos usados', () => pm.expect(pm.response.json().find(a => a.objetivoId === 3).intentosUsados).to.eql(3));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El docente ve que Ana se sincronizó hace poco",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/cursos/{{cursoAId}}/estudiantes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "cursos",
+                "{{cursoAId}}",
+                "estudiantes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const ana = pm.response.json().find(e => e.nombre === 'Ana');",
+                  "pm.test('última sincronización reciente', () => pm.expect(new Date(ana.ultimaSincronizacion).getTime()).to.be.above(Date.now() - 600000));",
+                  "pm.test('última conexión reciente', () => pm.expect(new Date(ana.ultimaConexion).getTime()).to.be.above(Date.now() - 600000));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "F. Monitoreo docente",
+      "item": [
+        {
+          "name": "Resumen de Ana (docente)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/estudiantes/3/resumen",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "estudiantes",
+                "3",
+                "resumen"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const oa3 = j.objetivos.find(o => o.objetivoId === 3), oa1 = j.objetivos.find(o => o.objetivoId === 1);",
+                  "pm.test('objetivo 3: mejor 100 %, DOMINA, 3 intentos', () => { pm.expect(oa3.mejorPorcentaje).to.eql(100); pm.expect(oa3.nivel).to.eql('DOMINA'); pm.expect(oa3.intentosAceptados).to.eql(3); });",
+                  "pm.test('objetivo 1: 75 %, EN_VIAS', () => { pm.expect(oa1.mejorPorcentaje).to.eql(75); pm.expect(oa1.nivel).to.eql('EN_VIAS'); });",
+                  "pm.test('promedio general 88 %, DOMINA', () => { pm.expect(j.promedioGeneral).to.eql(88); pm.expect(j.nivelGeneral).to.eql('DOMINA'); });",
+                  "pm.test('un objetivo sin rendir no tiene nivel', () => { const sin = j.objetivos.find(o => o.objetivoId === 4); if (sin) { pm.expect(sin).to.not.have.property('nivel'); } });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Intentos de Ana en el objetivo 3 (aceptados y rechazados)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/estudiantes/3/intentos?objetivoId=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "estudiantes",
+                "3",
+                "intentos"
+              ],
+              "query": [
+                {
+                  "key": "objetivoId",
+                  "value": "3"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('3 aceptados', () => pm.expect(j.filter(i => i.aceptado)).to.have.lengthOf(3));",
+                  "pm.test('hay rechazados con su motivo', () => pm.expect(j.filter(i => !i.aceptado).every(i => typeof i.motivoRechazo === 'string')).to.eql(true));",
+                  "pm.test('los aceptados traen sus respuestas', () => pm.expect(j.filter(i => i.aceptado).every(i => i.respuestas.length >= 1)).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "UTP también puede ver el resumen",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/estudiantes/3/resumen",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "estudiantes",
+                "3",
+                "resumen"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El estudiante no ve resúmenes (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/estudiantes/3/resumen",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "estudiantes",
+                "3",
+                "resumen"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "UTP no puede reiniciar (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/estudiantes/3/reinicio",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "estudiantes",
+                "3",
+                "reinicio"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"objetivoId\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "G. Informes pedagógicos",
+      "item": [
+        {
+          "name": "Informe del objetivo 3 de Ana",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/informes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "informes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudianteId\": 3,\n  \"objetivoId\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 creado', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('100 %, DOMINA, sin validar', () => { pm.expect(Number(j.puntajeGlobal)).to.eql(100); pm.expect(j.nivel).to.eql('DOMINA'); pm.expect(j.validado).to.eql(false); });",
+                  "pm.test('desglose por objetivo y por respuesta', () => { pm.expect(j.porObjetivo).to.have.lengthOf(1); pm.expect(j.respuestas).to.have.lengthOf(1); });",
+                  "pm.test('sin áreas de refuerzo', () => pm.expect(j.areasRefuerzo).to.have.lengthOf(0));",
+                  "pm.collectionVariables.set('informeId', j.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Informe global de Ana",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/informes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "informes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudianteId\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 creado', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('promedio 88 %, DOMINA, dos objetivos', () => { pm.expect(Number(j.puntajeGlobal)).to.eql(88); pm.expect(j.nivel).to.eql('DOMINA'); pm.expect(j.porObjetivo).to.have.lengthOf(2); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "No hay informe si el estudiante no ha rendido (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/informes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "informes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudianteId\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Falta el estudiante (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/informes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "informes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar los informes de Ana",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/informes?estudianteId=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "informes"
+              ],
+              "query": [
+                {
+                  "key": "estudianteId",
+                  "value": "3"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('hay al menos 2', () => pm.expect(pm.response.json().length).to.be.at.least(2));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar sin filtro (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/informes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "informes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ver el informe con su desglose",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/informes/{{informeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "informes",
+                "{{informeId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('trae el desglose', () => { const j = pm.response.json(); pm.expect(j.porObjetivo).to.have.lengthOf(1); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El docente escribe su observación y valida",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/informes/{{informeId}}/validacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "informes",
+                "{{informeId}}",
+                "validacion"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"observacion\": \"Muy buen trabajo; sigue practicando la lectura.\",\n  \"validar\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('validado con su observación', () => { pm.expect(j.validado).to.eql(true); pm.expect(j.validadoPor).to.eql(2); pm.expect(j.observacionDocente).to.include('Muy buen trabajo'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "UTP puede leer el informe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/informes/{{informeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "informes",
+                "{{informeId}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "UTP no puede validarlo (403)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/informes/{{informeId}}/validacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "informes",
+                "{{informeId}}",
+                "validacion"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenUtp}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"validar\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "El estudiante no ve informes (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/informes?estudianteId=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "informes"
+              ],
+              "query": [
+                {
+                  "key": "estudianteId",
+                  "value": "3"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEstudiante}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Informe inexistente (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/progreso/informes/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "progreso",
+                "informes",
+                "999999"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenDocente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('responde 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

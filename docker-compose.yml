@@ -27,6 +27,7 @@ services:
       - ms-auth
       - ms-contenidos
       - ms-actividades-evaluaciones
+      - ms-progreso
       - ms-admin
 
   ms-auth:
@@ -72,4 +73,16 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  # Se agrega en la fase 4:  ms-progreso (9094)
+  # ms-progreso consulta DIRECTAMENTE a ms-contenidos (reenviando el token del docente) para comprobar
+  # que un objetivo es visible antes de asignarlo.
+  ms-progreso:
+    build: ./ms-progreso
+    ports:
+      - "9094:9094"
+    environment:
+      <<: [*common-env, *db-env]
+      CONTENIDOS_URL: http://ms-contenidos:9092
+    depends_on:
+      - ms-contenidos
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
