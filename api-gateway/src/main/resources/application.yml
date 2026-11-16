@@ -1,0 +1,39 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: api-gateway
+  main:
+    web-application-type: reactive
+
+  # El secreto del JWT NO va aquí: se lee de la variable de entorno SECRET (ver SecurityConfig).
+
+  cloud:
+    gateway:
+      routes:
+
+        - id: ms-auth
+          uri: ${MS_AUTH_URL:http://localhost:9091}
+          predicates:
+            - Path=/auth/**
+
+        - id: ms-contenidos
+          uri: ${MS_CONTENIDOS_URL:http://localhost:9092}
+          predicates:
+            - Path=/contenidos/**
+
+        - id: ms-actividades-evaluaciones
+          uri: ${MS_EVALUACIONES_URL:http://localhost:9093}
+          predicates:
+            - Path=/evaluaciones/**
+
+        - id: ms-progreso
+          uri: ${MS_PROGRESO_URL:http://localhost:9094}
+          predicates:
+            - Path=/progreso/**
+
+        - id: ms-admin
+          uri: ${MS_ADMIN_URL:http://localhost:9095}
+          predicates:
+            - Path=/admin/**

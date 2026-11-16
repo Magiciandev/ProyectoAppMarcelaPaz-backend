@@ -1,0 +1,49 @@
+# Ejecutar:  docker compose up -d   (después de compilar con build-all.bat)
+# Requiere un archivo .env con la variable SECRET (ver .env.example).
+# MySQL corre en el equipo anfitrión, no en Docker (igual que el ejemplo del profesor).
+
+x-common-env: &common-env
+  SECRET: ${SECRET}
+
+x-db-env: &db-env
+  DB_HOST: host.docker.internal
+  DB_USER: root
+  DB_PASSWORD: ""
+
+services:
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "9090:9090"
+    environment:
+      <<: *common-env
+      MS_AUTH_URL: http://ms-auth:9091
+      MS_CONTENIDOS_URL: http://ms-contenidos:9092
+      MS_EVALUACIONES_URL: http://ms-actividades-evaluaciones:9093
+      MS_PROGRESO_URL: http://ms-progreso:9094
+      MS_ADMIN_URL: http://ms-admin:9095
+    depends_on:
+      - ms-auth
+      - ms-contenidos
+
+  ms-auth:
+    build: ./ms-auth
+    ports:
+      - "9091:9091"
+    environment:
+      <<: [*common-env, *db-env]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  ms-contenidos:
+    build: ./ms-contenidos
+    ports:
+      - "9092:9092"
+    environment:
+      <<: [*common-env, *db-env]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Se agregan en las fases siguientes:
+  #   ms-actividades-evaluaciones (9093), ms-progreso (9094), ms-admin (9095)
