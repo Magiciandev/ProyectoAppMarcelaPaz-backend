@@ -258,6 +258,21 @@ class SincronizacionServiceTest {
     }
 
     @Test
+    void unProgresoConLaMismaMarcaTiempoSeTrataComoDuplicadoYNoSeGuarda() {
+        // Mismo marcaTiempo que el enviado en la primera petición
+        Instant marca = Instant.parse("2026-11-16T14:00:00.123456Z");
+        Progreso existente = new Progreso(1L, ESTUDIANTE_ID, OBJETIVO_ID, 2, 1, 0, 80, marca);
+        when(progresos.findByEstudianteIdAndObjetivoAprendizajeId(ESTUDIANTE_ID, OBJETIVO_ID))
+                .thenReturn(Optional.of(existente));
+
+        SyncResponse r = service.sincronizar(ESTUDIANTE_ID, soloProgreso(new ProgresoSync(OBJETIVO_ID, 2, 1, 0, 50, marca)));
+
+        assertThat(r.getProgreso().get(0).getResultado()).isEqualTo("DUPLICADO");
+        assertThat(existente.getPorcentajeAvance()).isEqualTo(80); // No se sobrescribe
+        verify(progresos, never()).save(any());
+    }
+
+    @Test
     void unProgresoSinAsignacionSeRechaza() {
         when(asignaciones.buscar(ana, OBJETIVO_ID)).thenReturn(Optional.empty());
 

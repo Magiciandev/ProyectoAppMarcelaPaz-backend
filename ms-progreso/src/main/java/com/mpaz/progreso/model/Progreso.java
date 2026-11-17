@@ -43,6 +43,6 @@ public class Progreso {
     @Column(name = "porcentaje_avance", nullable = false)
     private Integer porcentajeAvance;
 
-    @Column(name = "marca_tiempo", nullable = false)
+    @Column(name = "marca_tiempo", nullable = false, columnDefinition = "datetime(6)")
     private Instant marcaTiempo;
 }
