@@ -273,6 +273,33 @@ class SincronizacionServiceTest {
     }
 
     @Test
+    void reenviarElMismoProgresoCuandoLaBDPerdioLosMilisegundosEsDuplicado() {
+        // La BD guardó 14:00:00 (sin milisegundos) y el celular reenvía 14:00:00.600
+        Instant enviado = Instant.parse("2026-11-16T14:00:00.600Z");
+        Progreso existente = new Progreso(1L, ESTUDIANTE_ID, OBJETIVO_ID, 2, 1, 0, 80, Instant.parse("2026-11-16T14:00:00Z"));
+        when(progresos.findByEstudianteIdAndObjetivoAprendizajeId(ESTUDIANTE_ID, OBJETIVO_ID))
+                .thenReturn(Optional.of(existente));
+
+        SyncResponse r = service.sincronizar(ESTUDIANTE_ID, soloProgreso(new ProgresoSync(OBJETIVO_ID, 2, 1, 0, 80, enviado)));
+
+        assertThat(r.getProgreso().get(0).getResultado()).isEqualTo("DUPLICADO");
+        verify(progresos, never()).save(any());
+    }
+
+    @Test
+    void unProgresoUnSegundoMasNuevoSiSeAcepta() {
+        Progreso existente = new Progreso(1L, ESTUDIANTE_ID, OBJETIVO_ID, 2, 1, 0, 80, Instant.parse("2026-11-16T14:00:00Z"));
+        when(progresos.findByEstudianteIdAndObjetivoAprendizajeId(ESTUDIANTE_ID, OBJETIVO_ID))
+                .thenReturn(Optional.of(existente));
+
+        SyncResponse r = service.sincronizar(ESTUDIANTE_ID,
+                soloProgreso(new ProgresoSync(OBJETIVO_ID, 3, 1, 0, 90, Instant.parse("2026-11-16T14:00:01.200Z"))));
+
+        assertThat(r.getProgreso().get(0).getResultado()).isEqualTo("ACEPTADO");
+        assertThat(existente.getPorcentajeAvance()).isEqualTo(90);
+    }
+
+    @Test
     void unProgresoSinAsignacionSeRechaza() {
         when(asignaciones.buscar(ana, OBJETIVO_ID)).thenReturn(Optional.empty());
 

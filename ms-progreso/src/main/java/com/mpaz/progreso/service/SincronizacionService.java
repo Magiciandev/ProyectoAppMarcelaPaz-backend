@@ -2,6 +2,7 @@ package com.mpaz.progreso.service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -207,8 +208,8 @@ public class SincronizacionService {
         }
         Optional<Progreso> existente = progresoRepository
                 .findByEstudianteIdAndObjetivoAprendizajeId(estudiante.getUsuarioId(), p.getObjetivoId());
-        if (existente.isPresent() && !existente.get().getMarcaTiempo().isBefore(p.getMarcaTiempo())) {
-            return new ResultadoProgreso(p.getObjetivoId(), DUPLICADO, null); // ya hay algo más reciente
+        if (existente.isPresent() && !esMasNuevo(p.getMarcaTiempo(), existente.get().getMarcaTiempo())) {
+            return new ResultadoProgreso(p.getObjetivoId(), DUPLICADO, null); // ya hay algo igual o más reciente
         }
         Progreso fila = existente.orElseGet(() -> {
             Progreso nuevo = new Progreso();
@@ -223,6 +224,14 @@ public class SincronizacionService {
         fila.setMarcaTiempo(p.getMarcaTiempo());
         progresoRepository.save(fila);
         return new ResultadoProgreso(p.getObjetivoId(), ACEPTADO, null);
+    }
+
+    /**
+     * Indica si lo enviado es realmente más nuevo que lo guardado. Se compara en segundos porque MySQL puede guardar
+     * la fecha sin milisegundos (columna datetime), y así reenviar el mismo lote nunca parece "más nuevo".
+     */
+    private boolean esMasNuevo(Instant enviado, Instant guardado) {
+        return enviado.truncatedTo(ChronoUnit.SECONDS).isAfter(guardado.truncatedTo(ChronoUnit.SECONDS));
     }
 
     private int nuloOCero(Integer valor) {

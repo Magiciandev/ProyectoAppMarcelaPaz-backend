@@ -1,0 +1,55 @@
+From e5430688a1f28868ab49a313632636077b7d925e Mon Sep 17 00:00:00 2001
+From: mapherrera-cmd <map.herrera@duocuc.cl>
+Date: Tue, 17 Nov 2026 20:45:18 -0300
+Subject: [PATCH] fix(ms-progreso): idempotencia de sync con marcaTiempo
+ datetime(6)
+
+- Progreso.marcaTiempo: columnDefinition=datetime(6) para preservar milisegundos en MySQL
+- SincronizacionServiceTest: caso misma marcaTiempo = DUPLICADO (no guarda ni sobrescribe)
+- Requiere ALTER TABLE mpaz_progreso.progreso MODIFY COLUMN marca_tiempo datetime(6) NOT NULL en BD existente
+---
+ .../java/com/mpaz/progreso/model/Progreso.java    |  2 +-
+ .../service/SincronizacionServiceTest.java        | 15 +++++++++++++++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/ms-progreso/src/main/java/com/mpaz/progreso/model/Progreso.java b/ms-progreso/src/main/java/com/mpaz/progreso/model/Progreso.java
+index 0a5c3a7..af7abd3 100644
+--- a/ms-progreso/src/main/java/com/mpaz/progreso/model/Progreso.java
++++ b/ms-progreso/src/main/java/com/mpaz/progreso/model/Progreso.java
+@@ -43,6 +43,6 @@ public class Progreso {
+     @Column(name = "porcentaje_avance", nullable = false)
+     private Integer porcentajeAvance;
+ 
+-    @Column(name = "marca_tiempo", nullable = false)
++    @Column(name = "marca_tiempo", nullable = false, columnDefinition = "datetime(6)")
+     private Instant marcaTiempo;
+ }
+diff --git a/ms-progreso/src/test/java/com/mpaz/progreso/service/SincronizacionServiceTest.java b/ms-progreso/src/test/java/com/mpaz/progreso/service/SincronizacionServiceTest.java
+index 92fa5d5..47f3652 100644
+--- a/ms-progreso/src/test/java/com/mpaz/progreso/service/SincronizacionServiceTest.java
++++ b/ms-progreso/src/test/java/com/mpaz/progreso/service/SincronizacionServiceTest.java
+@@ -257,6 +257,21 @@ class SincronizacionServiceTest {
+         assertThat(r.getProgreso().get(0).getMotivo()).isEqualTo("DATOS_INVALIDOS");
+     }
+ 
++    @Test
++    void unProgresoConLaMismaMarcaTiempoSeTrataComoDuplicadoYNoSeGuarda() {
++        // Mismo marcaTiempo que el enviado en la primera petición
++        Instant marca = Instant.parse("2026-11-16T14:00:00.123456Z");
++        Progreso existente = new Progreso(1L, ESTUDIANTE_ID, OBJETIVO_ID, 2, 1, 0, 80, marca);
++        when(progresos.findByEstudianteIdAndObjetivoAprendizajeId(ESTUDIANTE_ID, OBJETIVO_ID))
++                .thenReturn(Optional.of(existente));
++
++        SyncResponse r = service.sincronizar(ESTUDIANTE_ID, soloProgreso(new ProgresoSync(OBJETIVO_ID, 2, 1, 0, 50, marca)));
++
++        assertThat(r.getProgreso().get(0).getResultado()).isEqualTo("DUPLICADO");
++        assertThat(existente.getPorcentajeAvance()).isEqualTo(80); // No se sobrescribe
++        verify(progresos, never()).save(any());
++    }
++
+     @Test
+     void unProgresoSinAsignacionSeRechaza() {
+         when(asignaciones.buscar(ana, OBJETIVO_ID)).thenReturn(Optional.empty());
+-- 
+2.55.0.windows.3
+
