@@ -1,11 +1,27 @@
-# mpaz-backend — MPAZ PRO 2.º (fases 2 a 4)
+# MPAZ PRO 2.º — Backend
 
-Backend de la app MPAZ PRO 2.º (DSY1105). Sigue la estructura del ejemplo del profesor: proyectos Maven
-independientes (cada uno con su `mvnw`), un API Gateway, Docker Compose y MySQL en el equipo.
+Backend de la app Android **MPAZ PRO 2.º** (Escuela Escritora Marcela Paz, asignatura DSY1105 · Desarrollo de
+Aplicaciones Móviles). Son **cinco microservicios Spring Boot** detrás de un **API Gateway**, con MySQL (una base por
+servicio) y autenticación con JWT. Todos los datos son ficticios.
 
-**Estado:** fases 2 y 3 validadas (`api-gateway`, `ms-auth`, `ms-contenidos`, `ms-actividades-evaluaciones`,
-`ms-admin`). Fase 4 (`ms-progreso`) entregada, pendiente de compilar y probar. El contrato completo está en el
-documento «Contrato de la API y modelo de datos v2».
+- App Android: https://github.com/Magiciandev/ProyectoAppMarcelaPaz (rama `feature/fase6-paso1`, luego `master`)
+- Backend (este repositorio): https://github.com/Magiciandev/ProyectoAppMarcelaPaz-backend
+
+Sigue la estructura del ejemplo del profesor: proyectos Maven independientes (cada uno con su `mvnw`), Docker Compose
+y MySQL en el equipo.
+
+**Estado:** las cinco fases del backend están validadas con newman (37, 77 y 100 pruebas en las colecciones de las
+fases 2, 3 y 4) y los servicios traen 106 pruebas unitarias. La app ya funciona contra este backend, incluido el modo
+sin conexión.
+
+## Equipo
+
+Trabajo dividido en partes iguales (50 % / 50 %).
+
+| Parte | Max Herrera | Víctor Navarrete |
+|---|---|---|
+| Servicios | `api-gateway` · `ms-auth` (JWT, BCrypt) · `ms-progreso` (asignaciones, `/sync`, monitoreo, informes, reinicio) | `ms-contenidos` (catálogo y visibilidad por rol y estado) · `ms-actividades-evaluaciones` (preguntas, actividades, prueba final y paquete de evaluación) |
+| En conjunto | Contrato de la API y modelo de datos · `ms-admin` (ciclo de 5 estados e historial) · Docker Compose, scripts y colecciones de Postman | |
 
 ## Estructura
 
@@ -26,18 +42,18 @@ Las rutas que contienen `/interno/` las bloquea el gateway (las usará ms-admin 
 - Java 21 (el `mvnw` descarga Maven por el espejo configurado en `configuracion-maven/`).
 - Docker Desktop.
 - MySQL corriendo en tu equipo (puerto 3306, usuario `root` sin clave, como en el ejemplo del profesor).
-  Los esquemas `mpaz_auth` y `mpaz_contenidos` se crean solos.
+  Los cinco esquemas (`mpaz_auth`, `mpaz_contenidos`, `mpaz_actividades`, `mpaz_progreso`, `mpaz_admin`) se crean solos.
 - Postman, para probar.
 
 ## Puesta en marcha (Windows)
 
-1. Copia `.env.example` como `.env` y cambia `SECRET` por un texto de **32 caracteres o más**.
-   `.env` no se sube a Git. Es el mismo secreto para el gateway y los servicios.
+1. Copia `.env.example` como `.env` (`copy .env.example .env`) y cambia `SECRET` por un texto de **32 caracteres o
+   más**. `.env` no se sube a Git. Es el mismo secreto para el gateway y los servicios.
 2. Compila: `build-all.bat`
 3. Levanta todo: `docker compose up -d`
 4. Prueba con newman (desde la carpeta `postman`), en este orden:
    `npx newman run MPAZ-fase2.postman_collection.json`, después `...MPAZ-fase3...` y después `...MPAZ-fase4...`.
-   Deberían pasar todas las pruebas. Las de las fases 3 y 4 se pueden repetir: preparan sus propios datos cada vez.
+   Deberían pasar todas las pruebas (37, 77 y 100). **La de la fase 2 se ejecuta una sola vez** sobre datos nuevos (crea una unidad y una segunda corrida cambia un conteo); las de las fases 3 y 4 se pueden repetir.
 
 Al primer arranque, `ms-auth`, `ms-contenidos`, `ms-actividades-evaluaciones` y `ms-progreso` cargan sus datos
 ficticios si las tablas están vacías. Las preguntas de prueba de `ms-actividades-evaluaciones` suponen los ids de objetivo 1, 3, 4 y 5 que
@@ -59,7 +75,7 @@ Sin Docker las URL por defecto apuntan a `localhost` (MySQL y servicios).
 | `diego`, `eva`, `isidora`, `felipe` | ESTUDIANTE (2° B) | 7 a 10 |
 
 Los ids dependen del orden de carga: no cambies el orden en `DataLoader` de `ms-auth`, porque `ms-progreso`
-los usará en la fase 4.
+los usa `ms-progreso`.
 
 ## Datos de contenido de prueba
 
